@@ -43,6 +43,8 @@ global.
 ## TODO
 
 * Handle default ingress target
+* Fetch service address using Kubernetes API rather than DNS. Errors
+  with DNS even when using caching.
 
 
 ## LICENSE
