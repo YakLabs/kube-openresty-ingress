@@ -111,7 +111,7 @@ function _M.content(ngx)
     if dns_cache_options then
         local dns = cache.new(dns_cache_options)
         local answer, err, stale = dns:query(address, { qtype = 1 })
-        if err then
+        if err or (not answer) then
             if stale then
                 answer = stale
             else
