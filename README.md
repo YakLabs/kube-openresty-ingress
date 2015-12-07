@@ -54,3 +54,7 @@ See [LICENSE](./LICENSE)
 Includes a vendored copy of:
 * https://github.com/pintsized/lua-resty-http
 * https://github.com/hamishforbes/lua-resty-dns-cache
+
+## Authors
+
+Written by the Engineering Team at [Yik Yak](http://www.yikyakapp.com/)
