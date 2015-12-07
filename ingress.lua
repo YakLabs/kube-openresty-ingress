@@ -123,6 +123,8 @@ function _M.content(ngx)
             if ans.address then
                 address = ans.address
             end
+        else
+            ngx.log(ngx.ERR, "dns failed for ", address, " with ", err, " => ", encode(answer or ""))
         end
     end
 
