@@ -43,8 +43,11 @@ RUN cd /root/ngx_openresty/ngx_openresty-${OPENRESTY_VERSION} \
 RUN cd /tmp && \
     curl -L -O https://storage.googleapis.com/kubernetes-release/release/v1.1.2/bin/linux/amd64/kubectl && \
     mv kubectl /usr/bin/ && \
-    chmod 0555 /usr/bin/kubectl
+    chmod 0555 /usr/bin/kubectl && \
+    mkdir -p /app/lib/resty
 
-COPY *.lua start nginx.conf lua-resty-http /app/
+RUN apt-get install -y --no-install-recommends dnsutils
 
+COPY *.lua start nginx.conf /app/
+COPY vendor/lua-resty-dns-cache/lib/resty/ vendor/lua-resty-http/lib/resty/ /app/lib/resty/
 

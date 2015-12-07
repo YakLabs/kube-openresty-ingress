@@ -42,8 +42,7 @@ global.
 
 ## TODO
 
-* DNS cache using https://github.com/hamishforbes/lua-resty-dns-cache
-* Handle default ingress target?
+* Handle default ingress target
 
 
 ## LICENSE
@@ -52,3 +51,4 @@ See [LICENSE](./LICENSE)
 
 Includes a vendored copy of:
 * https://github.com/pintsized/lua-resty-http
+* https://github.com/hamishforbes/lua-resty-dns-cache
