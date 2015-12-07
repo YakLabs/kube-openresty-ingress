@@ -48,7 +48,7 @@ global.
 
 ## LICENSE
 
-See [LICENSE][./LICENSE]
+See [LICENSE](./LICENSE)
 
 Includes a vendored copy of:
 * https://github.com/pintsized/lua-resty-http
