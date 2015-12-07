@@ -1,0 +1,21 @@
+#!/bin/bash
+
+exec 2>&1
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd ${DIR}
+
+export PATH=/opt/openresty/nginx/sbin:$PATH
+
+ln -sf lua-resty-http/lib lib
+
+echo resolver $(awk 'BEGIN{ORS=" "} /nameserver/{print $2}' /etc/resolv.conf | sed "s/ $/;/g") >> ${DIR}/resolvers.conf
+
+until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:8001/healthz); do
+    echo "Waiting on kubectl"
+    sleep 5
+done
+
+exec nginx -c ${DIR}/nginx.conf -p ${DIR}
+

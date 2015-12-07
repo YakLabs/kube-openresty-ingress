@@ -1,0 +1,71 @@
+{
+    "apiVersion": "v1",
+    "kind": "ReplicationController",
+    "metadata": {
+        "name": "kube-openresty-ingress",
+        "namespace": "default",
+        "labels": {
+            "name": "kube-openresty-ingress"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "template": {
+            "metadata": {
+                "labels": {
+                    "name": "kube-openresty-ingress"
+                }
+            },
+            "spec": {
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 60,
+                "containers": [
+                    {
+                        "name": "nginx",
+                        "command": [
+                            "/app/start"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "cpu": "25m",
+                                "memory": "8Mi"
+                            },
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "32Mi"
+                            }
+                        },
+                        "image": "<image>",
+                        "livenessProbe": {
+                            "httpGet": {
+                                "path": "/healthz",
+                                "port": 8080
+                            },
+                            "initialDelaySeconds": 15,
+                            "timeoutSeconds": 1
+                        }
+                    },
+                    {
+                        "name": "kubectl",
+                        "image": "<image>",
+                        "command": [
+                            "/usr/bin/kubectl",
+                            "proxy",
+                            "--port=8001"
+                        ],
+                        "resources": {
+                            "requests": {
+                                "cpu": "10m",
+                                "memory": "8Mi"
+                            },
+                            "limits": {
+                                "cpu": "50m",
+                                "memory": "32Mi"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
