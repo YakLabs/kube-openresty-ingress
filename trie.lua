@@ -8,7 +8,7 @@ local mt = {
 
 -- http://lua-users.org/wiki/SplitJoin
 local strfind, tinsert, strsub = string.find, table.insert, string.sub
-function strsplit(delimiter, text)
+function _M.strsplit(delimiter, text)
     local list = {}
     local pos = 1
     while 1 do
@@ -23,6 +23,8 @@ function strsplit(delimiter, text)
     end
     return list
 end
+
+local strsplit = _M.strsplit
 
 function _M.new()
     local t = { }

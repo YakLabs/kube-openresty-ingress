@@ -4,7 +4,10 @@ local cjson = require "cjson"
 local lock = require "resty.lock"
 local trie = require "trie"
 local http = require "resty.http"
+local cache = require "resty.dns.cache"
 local os = require "os"
+
+local encode = cjson.encode
 
 -- ready to serve?
 local ready = false
@@ -25,6 +28,8 @@ local kubernetes_api_url = nil
 local ingressConfig = nil
 -- worker only fetches config from shared dict if version does not match
 local resourceVersion = nil
+
+local dns_cache_options = nil
 
 function get_resourceVersion(ngx)
     local d = ngx.shared[shared_dict]
@@ -100,7 +105,28 @@ function _M.content(ngx)
         return ngx.exit(404)
     end
 
-    ngx.var.upstream = backend.upstream
+    local address = backend.host
+    ngx.var.upstream_port = backend.port or 80
+
+    if dns_cache_options then
+        local dns = cache.new(dns_cache_options)
+        local answer, err, stale = dns:query(address, { qtype = 1 })
+        if err then
+            if stale then
+                answer = stale
+            else
+                answer = nil
+            end
+        end
+        if answer and answer[1] then
+            local ans = answer[1]
+            if ans.address then
+                address = ans.address
+            end
+        end
+    end
+
+    ngx.var.upstream_host = address
     return
 end
 
@@ -165,9 +191,8 @@ local function fetch_ingress(ngx)
                         cluster_domain
                     }, ".")
                 local backend = {
-                    upstream = hostname .. ":" .. path.backend.servicePort,
-                    key =  table_concat({path.backend.serviceName, namespace}, "_"),
-                    frontend = gsub(host, "%.", "_")
+                    host = hostname,
+                    port = path.backend.servicePort
                 }
 
                 paths:add(path.path, backend)
@@ -231,9 +256,28 @@ function _M.init(ngx, options)
     if labelSelector then
         kubernetes_api_url =  kubernetes_api_url .. "?labelSelector=" .. labelSelector
     end
+
+    -- try to create a dns cache
+    local resolvers = os.getenv("RESOLVERS")
+    if resolvers then
+        cache.init_cache(512)
+        local servers = trie.strsplit(" ", resolvers)
+
+        -- we only want to use the first nameserver as it is the cluster nameserver
+        -- this may change in the future
+        dns_cache_options =
+            {
+                dict = "dns_cache",
+                negative_ttl = nil,
+                max_stale = 900,
+                normalise_ttl = false,
+                resolver  = {
+                    nameservers = {servers[1]}
+                }
+            }
+    end
 end
 
-local encode = cjson.encode
 
 -- dump config. This is the raw config (including trie) for now
 function _M.config(ngx)
