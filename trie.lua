@@ -32,7 +32,13 @@ function _M.new()
 end
 
 function _M.add(t, key, val)
-    local parts = strsplit("/", key)
+    local parts = {}
+    -- hack for just /
+    if key == "/" then
+        parts = { "" }
+    else
+        parts = strsplit("/", key)
+    end
 
     local l = t
     for i = 1, #parts do
@@ -52,7 +58,6 @@ function _M.get(t, key)
 
     -- this may be nil
     local val = t.__value
-
     for i = 1, #parts do
         local p = parts[i]
         if l[p] then
