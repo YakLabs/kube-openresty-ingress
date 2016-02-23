@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-ENV OPENRESTY_VERSION 1.9.3.2
+ENV OPENRESTY_VERSION 1.9.7.3
 ENV OPENRESTY_PREFIX /opt/openresty
 ENV NGINX_PREFIX /opt/openresty/nginx
 ENV VAR_PREFIX /var/openresty
@@ -8,12 +8,12 @@ ENV VAR_PREFIX /var/openresty
 RUN apt-get update && \
     apt-get install -y curl bash jq build-essential git-core libpcre3-dev libssl-dev zlib1g-dev
 
-RUN  mkdir -p /root/ngx_openresty && \
-    cd /root/ngx_openresty && \
+RUN  mkdir -p /root/openresty && \
+    cd /root/openresty && \
     git clone https://github.com/zebrafishlabs/nginx-statsd.git && \
-    curl -sSL http://openresty.org/download/ngx_openresty-${OPENRESTY_VERSION}.tar.gz | tar -xvz
+    curl -sSL http://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz | tar -xvz
 
-RUN cd /root/ngx_openresty/ngx_openresty-${OPENRESTY_VERSION} \
+RUN cd /root/openresty/openresty-${OPENRESTY_VERSION} \
  && readonly NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) \
  && ./configure \
     --prefix=$OPENRESTY_PREFIX \
@@ -35,7 +35,7 @@ RUN cd /root/ngx_openresty/ngx_openresty-${OPENRESTY_VERSION} \
     --without-http_uwsgi_module \
     --without-http_scgi_module \
     --without-http_memcached_module \
-    --add-module=/root/ngx_openresty/nginx-statsd \
+    --add-module=/root/openresty/nginx-statsd \
     -j${NPROC} \
  && make -j${NPROC} \
  && make install
